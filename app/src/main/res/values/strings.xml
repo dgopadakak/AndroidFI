@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">AndroidFI</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <string name="name">Модель:</string>
+    <string name="hint">Цвет:</string>
+    <string name="num">Номер:</string>
+    <string name="num_of_participants">Завод:</string>
+    <string name="time_for_solve">Дата производства:</string>
+    <string name="max_score">Вместимость:</string>
+    <string name="is_complicated">Грузовой:</string>
+    <string name="condition">Описание:</string>
+    <string name="button_ok">Ок</string>
+    <string name="button_cancel">Отмена</string>
+    <string name="button_del">Удалить</string>
+    <string name="button_edit">Изменить</string>
+    <string name="name_hint">Модель</string>
+    <string name="hint_hint">Цвет</string>
+    <string name="num_hint">Номер</string>
+    <string name="num_of_participants_hint">Название завода</string>
+    <string name="time_for_solve_hint">Дата производства</string>
+    <string name="max_score_hint">Кол-во мест</string>
+    <string name="is_complicated_hint">Да/Нет</string>
+    <string name="condition_hint">Введите описание</string>
+    <string name="plus_button_description">Добавить самолет</string>
+    <string name="plus">➕</string>
+</resources>

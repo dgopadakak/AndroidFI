@@ -160,26 +160,30 @@ class AirlineOperator()
 
         if (sortIndex == 4)
         {
-            val tempArrayListOfTasksTimeForSolve: ArrayList<String> = ArrayList()
-            val tempArrayListOfPlanes: ArrayList<Plane> = ArrayList()
+            val tempArrayListOfTasksNumOfParticipants: ArrayList<GregorianCalendar> = ArrayList()
+            val tempArrayListOfTours: ArrayList<Plane> = ArrayList()
             for (i in airlines[indexGroup].listOfPlanes)
             {
-                tempArrayListOfTasksTimeForSolve.add(i.productionDate.lowercase(Locale.ROOT))
+                val d: List<String> = i.productionDate.split(".")
+                tempArrayListOfTasksNumOfParticipants.add(GregorianCalendar(d[2].toInt(),
+                    d[1].toInt(), d[0].toInt()))
             }
-            tempArrayListOfTasksTimeForSolve.sort()
-            for (i in tempArrayListOfTasksTimeForSolve)
+            tempArrayListOfTasksNumOfParticipants.sort()
+            for (i in tempArrayListOfTasksNumOfParticipants)
             {
                 for (j in airlines[indexGroup].listOfPlanes)
                 {
-                    if (i == j.productionDate.lowercase(Locale.ROOT)
-                        && !tempArrayListOfPlanes.contains(j))
+                    val d: List<String> = j.productionDate.split(".")
+                    val tempGregorianCalendar = GregorianCalendar(d[2].toInt(), d[1].toInt(),
+                        d[0].toInt())
+                    if (i == tempGregorianCalendar && !tempArrayListOfTours.contains(j))
                     {
-                        tempArrayListOfPlanes.add(j)
+                        tempArrayListOfTours.add(j)
                         break
                     }
                 }
             }
-            airlines[indexGroup].listOfPlanes = tempArrayListOfPlanes
+            airlines[indexGroup].listOfPlanes = tempArrayListOfTours
         }
 
         if (sortIndex == 5)

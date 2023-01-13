@@ -303,7 +303,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    fun delTask()
+    fun delPlane()
     {
         connection.sendDataToServer("d$currentAirlineID,$currentPlaneID")
         waitingForUpdate = true

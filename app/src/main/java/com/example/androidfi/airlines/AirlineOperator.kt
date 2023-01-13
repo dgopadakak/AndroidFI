@@ -56,9 +56,9 @@ class AirlineOperator()
         return arrayListForReturn
     }
 
-    fun getPlane(indexGroup: Int, indexExam: Int): Plane
+    fun getPlane(airlineIndex: Int, planeIndex: Int): Plane
     {
-        return airlines[indexGroup].listOfPlanes[indexExam]
+        return airlines[airlineIndex].listOfPlanes[planeIndex]
     }
 
     fun sortPlanes(indexGroup: Int, sortIndex: Int)

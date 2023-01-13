@@ -15,7 +15,7 @@ class MyDialogFragmentDelPlane: DialogFragment()
         builder.setMessage("Будет удален самолет: $planeName")
             .setTitle("Внимание!")
             .setPositiveButton("Продолжить"
-            ) { _, _ -> (activity as MainActivity?)?.delTask() }
+            ) { _, _ -> (activity as MainActivity?)?.delPlane() }
             .setNegativeButton("Отмена") { _, _ -> }
         return builder.create()
     }

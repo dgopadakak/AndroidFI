@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -44,13 +45,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var startTime: Long = 0
 
     private lateinit var db: AppDatabase
-    private lateinit var roDao: AirlineOperatorDao
+    private lateinit var aoDao: AirlineOperatorDao
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var nv: NavigationView
     private lateinit var toolbar: androidx.appcompat.widget.Toolbar
     private lateinit var progressBar: ProgressBar
     private lateinit var recyclerViewPlanes: RecyclerView
+    private var resultLauncher = registerForActivityResult(
+        ActivityResultContracts
+        .StartActivityForResult())
+    { result ->
+        if (result.resultCode == Activity.RESULT_OK)
+        {
+            val data: Intent? = result.data
+            processOnActivityResult(data)
+        }
+    }
 
     private var ao: AirlineOperator = AirlineOperator()
     private var currentAirlineID: Int = -1
@@ -119,7 +130,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
 
         db = App.instance?.database!!
-        roDao = db.groupOperatorDao()
+        aoDao = db.groupOperatorDao()
         startTime = System.currentTimeMillis()
         connection = Connection(serverIP, serverPort, "REFRESH", this)
     }
@@ -148,7 +159,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val intent = Intent()
             intent.setClass(this, EditPlaneActivity::class.java)
             intent.putExtra("action", 1)
-            startActivityForResult(intent, 1)
+            resultLauncher.launch(intent)
         }
         return super.onOptionsItemSelected(item)
     }
@@ -223,7 +234,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             toast.show() }
                         connectionStage = -1
                         activity.runOnUiThread { progressBar.visibility = View.INVISIBLE }
-                        ao = roDao.getById(1)
+                        ao = aoDao.getById(1)
                         for (i in 0 until ao.getAirlines().size)
                         {
                             activity.runOnUiThread { nv.menu.add(0, i, 0,
@@ -241,9 +252,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         private fun processingInputStream(text: String)
         {
-            roDao.delete(AirlineOperator())
+            aoDao.delete(AirlineOperator())
             val tempGo: AirlineOperator = gson.fromJson(text, AirlineOperator::class.java)
-            roDao.insert(tempGo)
+            aoDao.insert(tempGo)
 
             if (connectionStage != 1)
             {
@@ -354,44 +365,47 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             intent.putExtra("seats", tempTask.seats.toString())
             intent.putExtra("isCargo", tempTask.isCargo.toString())
             intent.putExtra("comment", tempTask.comment)
-            startActivityForResult(intent, 1)
+            resultLauncher.launch(intent)
         }
         recyclerViewPlanes.adapter = CustomRecyclerAdapterForExams(
             ao.getPlaneModels(currentAirlineID),
             ao.getPlanesNumbers(currentAirlineID))
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?)
+    private fun processOnActivityResult(data: Intent?)
     {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK)
-        {
-            val action = data?.getSerializableExtra("action") as Int
-            val examName = data.getSerializableExtra("model") as String
-            val teacherName = data.getSerializableExtra("color") as String
-            val auditory = data.getSerializableExtra("number") as Int
-            val date = data.getSerializableExtra("factory") as String
-            val time = data.getSerializableExtra("productionDate") as String
-            val people = data.getSerializableExtra("seats") as Int
-            val abstract = data.getSerializableExtra("isCargo") as Int
-            val comment = data.getSerializableExtra("comment") as String
-            val tempPlane = Plane(examName, teacherName, auditory, date, time, people
-                , abstract, comment)
-            val tempPlaneJSON: String = gson.toJson(tempPlane)
+        val action = data!!.getIntExtra("action", -1)
+        val model = data.getStringExtra("model")
+        val color = data.getStringExtra("color")
+        val number = data.getIntExtra("number", -1)
+        val factory = data.getStringExtra("factory")
+        val productionDate = data.getStringExtra("productionDate")
+        val seats = data.getIntExtra("seats", -1)
+        val isCargo = data.getIntExtra("isCargo", 0)
+        val comment = data.getStringExtra("comment")
+        val tempPlane = Plane(model!!, color!!, number, factory!!, productionDate!!, seats
+            , isCargo, comment!!)
+        val tempPlaneJSON: String = gson.toJson(tempPlane)
 
-            if (action == 1)
-            {
-                val tempStringToSend = "a${ao.getAirlines()[currentAirlineID].name}##$tempPlaneJSON"
-                connection.sendDataToServer(tempStringToSend)
-                waitingForUpdate = true
-            }
-            if (action == 2)
-            {
-                val tempStringToSend = "e$currentAirlineID,$currentPlaneID##$tempPlaneJSON"
-                connection.sendDataToServer(tempStringToSend)
-                waitingForUpdate = true
-            }
+        if (action == 1)
+        {
+            val tempStringToSend = "a${ao.getAirlines()[currentAirlineID].name}##$tempPlaneJSON"
+            connection.sendDataToServer(tempStringToSend)
+            waitingForUpdate = true
+        }
+        if (action == 2)
+        {
+            val tempStringToSend = "e$currentAirlineID,$currentPlaneID##$tempPlaneJSON"
+            connection.sendDataToServer(tempStringToSend)
+            waitingForUpdate = true
+        }
+        if (action == -1)
+        {
+            val toast = Toast.makeText(
+                applicationContext,
+                "Ошибка добавления/изменения!",
+                Toast.LENGTH_SHORT)
+            toast.show()
         }
     }
 }
